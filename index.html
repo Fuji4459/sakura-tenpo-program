@@ -1,202 +1,1201 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>SAKURA店舗伝票</title>
-<meta name="theme-color" content="#d83b69">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="SAKURA店舗伝票">
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>スナック伝票管理</title>
 <style>
-:root{--pink:#d83b69;--pink2:#f9e8ee;--dark:#222;--muted:#667085;--line:#e5e7eb;--bg:#f6f7f9;--white:#fff;--danger:#c62828;--green:#18864b}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Yu Gothic",sans-serif;color:var(--dark)}
-header{background:linear-gradient(135deg,#c92f61,#e65a83);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:20;box-shadow:0 2px 10px #0002}
-.brand{display:flex;align-items:center;gap:10px}.brand-icon{width:42px;height:42px;border-radius:12px;background:#fff;color:var(--pink);display:grid;place-items:center;font-size:23px}.brand h1{font-size:20px;margin:0}.brand small{opacity:.9}
-nav{display:flex;gap:7px;overflow:auto;margin-top:12px}nav button{white-space:nowrap;border:0;border-radius:999px;padding:9px 13px;background:#ffffff25;color:#fff;font-weight:700}
-nav button.active{background:#fff;color:var(--pink)}
-main{max-width:1050px;margin:auto;padding:16px}.view{display:none}.view.active{display:block}
-.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px #00000008}
-h2{font-size:19px;margin:0 0 14px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-label{font-weight:700;font-size:13px;display:block;margin-bottom:6px}input,select{width:100%;padding:11px;border:1px solid #ccd1d8;border-radius:9px;font-size:16px;background:#fff}
-button{cursor:pointer}.btn{border:0;border-radius:9px;padding:10px 13px;font-weight:700;font-size:14px}.primary{background:var(--pink);color:#fff}.secondary{background:#eef0f3}.danger{background:#fee2e2;color:#a00}.green{background:#e6f7ee;color:#12643a}
-.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.item-row{display:grid;grid-template-columns:1.5fr .8fr .6fr .9fr auto;gap:7px;align-items:end;padding:10px 0;border-bottom:1px solid var(--line)}
-.item-row:last-child{border-bottom:0}.amount{text-align:right;font-weight:800;padding:11px 4px}
-.summary{display:flex;justify-content:flex-end;gap:30px;align-items:center;font-size:17px}.total{font-size:24px;color:var(--pink);font-weight:900}
-.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;background:#fff}th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{background:#fafafa;font-size:13px}
-.right{text-align:right}.muted{color:var(--muted);font-size:13px}.empty{padding:25px;text-align:center;color:var(--muted)}
-.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px}.stat b{font-size:22px;color:var(--pink)}
-.menu-row{display:grid;grid-template-columns:1fr 150px auto;gap:8px;align-items:center;margin-bottom:8px}
-.notice{background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px;font-size:13px}
-@media(max-width:700px){main{padding:10px}.grid{grid-template-columns:1fr}.item-row{grid-template-columns:1fr 1fr 80px 1fr auto}.item-row select{grid-column:1/-1}.summary{display:block;text-align:right}.statgrid{grid-template-columns:1fr}.menu-row{grid-template-columns:1fr 110px auto}header{padding:10px 12px}}
+* { box-sizing: border-box; }
+body { font-family: sans-serif; background:#f0f2f5; padding:20px; color:#333; margin:0; }
+.container { max-width:900px; margin:0 auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,.12); }
+h1 { text-align:center; font-size:24px; color:#111; border-bottom:2px solid #333; padding-bottom:10px; margin:0 0 20px; }
+h2 { margin:0 0 15px; font-size:20px; }
+.action-header,.toolbar,.print-btn-container { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px; }
+.btn { padding:8px 13px; border-radius:5px; font-weight:bold; cursor:pointer; border:none; font-size:13px; }
+.btn-primary { background:#007bff;color:#fff; } .btn-success { background:#28a745;color:#fff; }
+.btn-info { background:#17a2b8;color:#fff; } .btn-dark { background:#343a40;color:#fff; }
+.btn-danger { background:#dc3545;color:#fff; } .btn-warning { background:#f0ad4e;color:#111; }
+.btn-secondary { background:#6c757d;color:#fff; }
+.btn:hover { filter:brightness(.92); }
+.meta-info { display:flex; gap:10px; align-items:center; margin-bottom:20px; }
+.meta-info input { padding:9px; border:1px solid #ccc; border-radius:5px; font-size:14px; }
+.meta-info #customer-name { flex:2; } .meta-info #current-date { flex:1; }
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; margin-bottom:20px; }
+th,td { border-bottom:1px solid #ddd; padding:9px; text-align:left; vertical-align:middle; }
+th { background:#f8f9fa; white-space:nowrap; }
+.input-qty { width:65px;padding:6px; } .input-price { width:90px;padding:6px; }
+.select-item { width:160px;padding:6px; }
+.summary-table { width:55%; margin-left:auto; }
+.summary-table td { border:none; text-align:right; padding:5px; }
+.total-row { font-size:18px;font-weight:bold;border-top:2px solid #333; }
+.panel { border:1px solid #ddd; border-radius:8px; padding:15px; margin-top:20px; }
+.filters { display:flex; flex-wrap:wrap; gap:10px; align-items:end; margin-bottom:15px; }
+.filters label { font-size:12px; font-weight:bold; display:flex; flex-direction:column; gap:4px; }
+.filters input { padding:7px; border:1px solid #ccc; border-radius:4px; }
+.stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:15px; }
+.stat { background:#f8f9fa; border:1px solid #ddd; border-radius:7px; padding:12px; text-align:center; }
+.stat strong { display:block; font-size:20px; margin-top:5px; }
+.history-table { font-size:13px; }
+.history-table .actions { white-space:nowrap; }
+.empty { text-align:center; color:#777; padding:20px; }
+.cloud-status {display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:bold;padding:6px 9px;border-radius:999px;background:#f1f5f9;color:#475569;} .cloud-status.ok {background:#dcfce7;color:#166534;} .cloud-status.err {background:#fee2e2;color:#991b1b;} .cloud-panel input {width:100%;padding:9px;border:1px solid #ccc;border-radius:5px;} .notice { background:#fff8e1; border:1px solid #ffe08a; padding:10px; border-radius:6px; margin-bottom:15px; font-size:13px; }
+  .invoice-tabs-header { display:flex; align-items:flex-start; gap:10px; margin:0 0 14px; }
+  .invoice-tabs { display:flex; flex-wrap:wrap; gap:8px; flex:1; }
+  .invoice-tab { display:flex; align-items:center; gap:6px; border:1px solid #cbd5e1; background:#f8fafc; color:#334155; border-radius:9px; padding:8px 10px; cursor:pointer; font-weight:700; }
+  .invoice-tab.active { background:#d83b69; color:#fff; border-color:#d83b69; }
+  .invoice-tab .tab-close { border:0; background:transparent; color:inherit; font-size:16px; line-height:1; cursor:pointer; padding:0 2px; }
+@media (max-width:650px) {
+  body { padding:8px; } .container { padding:12px; }
+  .invoice-tabs-header { flex-direction:column; } .invoice-tabs { width:100%; } .invoice-tabs-header > .btn { width:100%; }
+  .meta-info { flex-direction:column; align-items:stretch; }
+  .meta-info #customer-name,.meta-info #current-date { width:100%; }
+  .summary-table { width:100%; }
+  .stats { grid-template-columns:1fr; }
+}
+@media print {
+  body { background:#fff;padding:0;color:#000; }
+  .container { box-shadow:none;max-width:100%;padding:0; }
+  .action-header,.toolbar,.print-btn-container,.delete-col,.panel,.btn { display:none !important; }
+  input,select { border:none!important;background:transparent!important;appearance:none;-webkit-appearance:none;color:#000;font-size:16px;width:auto!important; }
+}
 </style>
 </head>
 <body>
-<header>
-  <div class="brand"><div class="brand-icon">🌸</div><div><h1>SAKURA店舗伝票</h1><small>伝票・売上管理</small></div></div>
-  <nav>
-    <button data-tab="ticket" class="active">🧾 伝票</button>
-    <button data-tab="history">📋 売上履歴</button>
-    <button data-tab="daily">📅 日別集計</button>
-    <button data-tab="monthly">🗓️ 月別集計</button>
-    <button data-tab="menu">⚙️ 品目設定</button>
-    <button data-tab="backup">💾 バックアップ</button>
-  </nav>
-</header>
-<main>
-<section id="ticket" class="view active">
- <div class="card">
-  <h2>新しい伝票</h2>
-  <div class="grid">
-   <div><label>お客様名</label><input id="customer" placeholder="例：山田様"></div>
-   <div><label>日付</label><input id="ticketDate" type="date"></div>
+<div class="container">
+  <div class="action-header">
+    <button class="btn btn-info" onclick="openHistory()">📊 売上履歴・日別集計</button>
+    <button class="btn btn-primary" onclick="createInvoicePage()">➕ 新しい伝票</button><span style="align-self:center;font-size:12px;color:#666;">新規伝票はテーブルチャージから開始</span>
+    <button class="btn btn-secondary" onclick="backupData()">💾 バックアップ</button>
+    <button class="btn btn-secondary" onclick="document.getElementById('restore-file').click()">📥 復元</button>
+    <button class="btn btn-warning" onclick="openMenuManager()">⚙️ 品目・金額設定</button>
+    <button class="btn btn-secondary" onclick="backupMenuSettings()">📦 品目設定バックアップ</button>
+    <button class="btn btn-secondary" onclick="document.getElementById('restore-menu-file').click()">📥 品目設定復元</button>
+    <button class="btn btn-success" onclick="openCloudSettings()">☁️ Google保存設定</button>
+    <span id="cloud-status" class="cloud-status">☁️ Google未接続</span>
+    <input id="restore-menu-file" type="file" accept=".json,application/json" style="display:none" onchange="restoreMenuSettings(this)">
+    <input id="restore-file" type="file" accept=".json,application/json" style="display:none" onchange="restoreData(this)">
   </div>
- </div>
- <div class="card">
-  <h2>品目</h2>
-  <div id="items"></div>
-  <div class="actions"><button class="btn secondary" id="addItem">➕ 品目を追加</button></div>
-  <div class="summary"><div>小計：<b id="subtotal">¥0</b></div><div>消費税：<b id="tax">¥0</b></div><div class="total">合計：<span id="total">¥0</span></div></div>
-  <div class="actions"><button class="btn primary" id="saveSale">💴 精算・保存</button><button class="btn secondary" id="clearTicket">🗑️ クリア</button></div>
- </div>
-</section>
 
-<section id="history" class="view">
- <div class="card"><h2>売上履歴</h2><div class="actions"><button class="btn secondary" id="exportHistory">CSV出力</button><button class="btn danger" id="deleteAllSales">売上履歴を全削除</button></div></div>
- <div class="card"><div class="table-wrap"><table><thead><tr><th>日付</th><th>お客様</th><th class="right">合計金額</th><th>操作</th></tr></thead><tbody id="historyBody"></tbody></table></div></div>
-</section>
+  <div class="invoice-tabs-header">
+    <div id="invoice-tabs" class="invoice-tabs"></div>
+    <button class="btn btn-primary" onclick="createInvoicePage()">➕ 新しい伝票</button>
+  </div>
 
-<section id="daily" class="view">
- <div class="card"><h2>日別集計</h2><div class="grid"><div><label>日付</label><input id="dailyDate" type="date"></div></div></div>
- <div class="statgrid"><div class="stat">件数<br><b id="dailyCount">0</b>件</div><div class="stat">小計<br><b id="dailySubtotal">¥0</b></div><div class="stat">合計<br><b id="dailyTotal">¥0</b></div></div>
-</section>
+  <h1>伝票 / 会計書</h1>
+  <div class="notice" style="margin-bottom:12px;">新しいお客様が来店したら「➕ 新しい伝票」を押してください。お客様ごとに伝票ページが追加されます。</div>
 
-<section id="monthly" class="view">
- <div class="card"><h2>月別集計</h2><div><label>対象月</label><input id="monthlyMonth" type="month"></div></div>
- <div class="statgrid"><div class="stat">件数<br><b id="monthlyCount">0</b>件</div><div class="stat">小計<br><b id="monthlySubtotal">¥0</b></div><div class="stat">合計<br><b id="monthlyTotal">¥0</b></div></div>
- <div class="card"><div class="actions"><button class="btn secondary" id="exportMonthly">月別CSV出力</button></div><div class="table-wrap"><table><thead><tr><th>日付</th><th>件数</th><th>小計</th><th>合計</th></tr></thead><tbody id="monthlyBody"></tbody></table></div></div>
-</section>
+  <div class="meta-info">
+    <input type="text" id="customer-name" placeholder="お客様名（入力するとタブ名が変わります）" oninput="updateTabTitle()">
+    <span style="font-weight:bold;">様</span>
+    <input type="date" id="current-date" onchange="saveCurrentInvoiceToState()">
+  </div>
 
-<section id="menu" class="view">
- <div class="card"><h2>品目・金額設定</h2><div class="notice">保存・追加・削除すると、伝票の品目一覧へ即時反映します。売上履歴は変更されません。</div><div id="menuList" style="margin-top:12px"></div>
- <div class="actions"><button class="btn primary" id="addMenu">➕ 品目を追加</button><button class="btn secondary" id="backupMenu">📦 品目設定バックアップ</button><button class="btn secondary" id="restoreMenuBtn">📥 品目設定復元</button><input id="restoreMenu" type="file" accept=".json,application/json" hidden></div></div>
-</section>
+  <div class="table-wrap">
+    <table id="invoice-table">
+      <thead><tr><th>品目</th><th>単価</th><th>数量</th><th>金額</th><th class="delete-col"></th></tr></thead>
+      <tbody id="item-list"></tbody>
+    </table>
+  </div>
 
-<section id="backup" class="view">
- <div class="card"><h2>バックアップ・復元</h2>
-  <p>売上データと品目設定をまとめて保存・復元します。</p>
-  <div class="actions"><button class="btn primary" id="backupAll">💾 全データをバックアップ</button><button class="btn secondary" id="restoreAllBtn">📥 全データを復元</button><input id="restoreAll" type="file" accept=".json,application/json" hidden></div>
-  <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
-  <p class="muted">※売上履歴の削除は元に戻せません。重要なデータは先にバックアップしてください。</p>
- </div>
-</section>
-</main>
+  <button class="btn btn-primary" onclick="addRow()">➕ 行を追加</button>
+
+  <table class="summary-table">
+    <tr><td>小計:</td><td>¥<span id="subtotal">0</span></td></tr>
+    <tr><td>消費税 (10%):</td><td>¥<span id="tax">0</span></td></tr>
+    <tr class="total-row"><td>合計金額:</td><td>¥<span id="total-amount">0</span></td></tr>
+  </table>
+
+  <div class="print-btn-container">
+    <button class="btn btn-success" onclick="window.print()">🖨️ 伝票を印刷する</button>
+    <button class="btn btn-info" onclick="checkoutCustomer()">💸 精算</button>
+  </div>
+
+
+  <div id="cloud-panel" class="panel cloud-panel" style="display:none;">
+    <div class="toolbar">
+      <button class="btn btn-dark" onclick="closeCloudSettings()">← 伝票へ戻る</button>
+      <button class="btn btn-success" onclick="testCloudConnection()">🔎 接続テスト</button>
+      <button class="btn btn-info" onclick="syncSalesToGoogle(true)">☁️ 今すぐ同期</button>
+    </div>
+    <h2>Googleスプレッドシート保存設定</h2>
+    <div class="notice">
+      精算完了・売上削除・復元後に、売上データをGoogleスプレッドシートへ自動同期します。
+      Google側では「売上データ」「日別集計」「月別集計」を自動更新します。
+    </div>
+    <label style="display:block;margin-bottom:12px;font-weight:bold;">
+      Google Apps Script WebアプリURL
+      <input id="cloud-webapp-url" type="url" placeholder="https://script.google.com/macros/s/……/exec">
+    </label>
+    <label style="display:block;margin-bottom:12px;font-weight:bold;">
+      店舗キー
+      <input id="cloud-api-key" type="password" placeholder="Apps Script側で設定した店舗キー">
+    </label>
+    <div style="font-size:12px;color:#666;line-height:1.6;">
+      ※ Googleスプレッドシート本体のURLではありません。Apps Scriptを「ウェブアプリ」としてデプロイしたURLを入力します。
+    </div>
+    <div style="margin-top:12px;">
+      <button class="btn btn-primary" onclick="saveCloudSettings()">💾 接続設定を保存</button>
+      <button class="btn btn-secondary" onclick="disconnectCloud()">接続設定を削除</button>
+    </div>
+  </div>
+
+  <div id="menu-panel" class="panel" style="display:none;">
+    <div class="toolbar">
+      <button class="btn btn-dark" onclick="closeMenuManager()">← 伝票へ戻る</button>
+      <button class="btn btn-success" onclick="addMenuItem()">➕ 品目を追加</button>
+      <button class="btn btn-secondary" onclick="backupMenuSettings()">📦 品目設定を保存</button>
+      <button class="btn btn-secondary" onclick="document.getElementById('restore-menu-file').click()">📥 品目設定を復元</button>
+    </div>
+    <h2>品目・金額設定</h2>
+    <div class="notice">
+      ここで登録した品目と金額は、伝票の「品目」選択欄に反映されます。
+      変更・追加・削除後は自動的に保存されます。
+    </div>
+    <div class="table-wrap">
+      <table class="history-table">
+        <thead><tr><th>品目</th><th>金額</th><th>操作</th></tr></thead>
+        <tbody id="menu-list"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="history-panel" class="panel" style="display:none;">
+    <div class="toolbar">
+      <button class="btn btn-dark" onclick="closeHistory()">← 伝票へ戻る</button>
+      <button class="btn btn-info" onclick="exportHistoryCSV()">📊 表示中の履歴をCSV</button>
+      <button class="btn btn-secondary" onclick="backupData()">💾 バックアップ</button>
+      <button class="btn btn-primary" onclick="showMonthlySummary()">📅 月別集計</button>
+    </div>
+    <h2>売上履歴・日別集計</h2>
+
+    <div class="filters">
+      <label>日付
+        <input type="date" id="history-date" onchange="renderHistory()">
+      </label>
+      <label>お客様名
+        <input type="text" id="history-customer" placeholder="検索" oninput="renderHistory()">
+      </label>
+      <button class="btn btn-secondary" onclick="clearHistoryFilters()">条件クリア</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat">伝票数<strong id="stat-count">0</strong></div>
+      <div class="stat">小計<strong>¥<span id="stat-subtotal">0</span></strong></div>
+      <div class="stat">売上合計<strong>¥<span id="stat-total">0</span></strong></div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="history-table">
+        <thead><tr><th>日時</th><th>日付</th><th>お客様</th><th>明細</th><th>合計</th><th>操作</th></tr></thead>
+        <tbody id="history-list"></tbody>
+      </table>
+    </div>
+
+    <div id="monthly-panel" class="panel" style="display:none; margin-top:25px;">
+      <div class="toolbar">
+        <button class="btn btn-dark" onclick="closeMonthlySummary()">← 日別履歴へ戻る</button>
+        <button class="btn btn-info" onclick="exportMonthlyCSV()">📊 月別集計をCSV</button>
+      </div>
+      <h2>月別集計</h2>
+      <div class="filters">
+        <label>対象月
+          <input type="month" id="monthly-month" onchange="renderMonthlySummary()">
+        </label>
+      </div>
+      <div class="stats">
+        <div class="stat">月間伝票数<strong id="monthly-count">0</strong></div>
+        <div class="stat">月間小計<strong>¥<span id="monthly-subtotal">0</span></strong></div>
+        <div class="stat">月間消費税<strong>¥<span id="monthly-tax">0</span></strong></div>
+        <div class="stat">月間売上合計<strong>¥<span id="monthly-total">0</span></strong></div>
+        <div class="stat">営業日数<strong id="monthly-days">0</strong></div>
+        <div class="stat">1日平均売上<strong>¥<span id="monthly-average">0</span></strong></div>
+      </div>
+      <div class="table-wrap">
+        <table class="history-table">
+          <thead><tr><th>日付</th><th>伝票数</th><th>小計</th><th>消費税</th><th>売上合計</th></tr></thead>
+          <tbody id="monthly-list"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
-const MENU_KEY="sakura_menu_v1", SALES_KEY="sakura_sales_v1";
-const defaultMenu=[
- {name:"テーブルチャージ",price:2500},
- {name:"セット料金",price:1000},
- {name:"ビールJ",price:1500},
- {name:"ボトル",price:5000}
+const STORAGE_KEY = "snack_sales_history";
+const MENU_STORAGE_KEY = "snack_menu_presets";
+const DEFAULT_MENU_PRESETS = [
+  {name:"テーブルチャージ",price:2500},{name:"セット料金",price:1000},{name:"割り物（炭酸）",price:500},
+  {name:"割り物（烏龍茶）",price:500},{name:"割り物（無糖紅茶）",price:500},
+  {name:"割り物（緑茶）",price:500},{name:"割り物（お茶）",price:500},
+  {name:"ビールJ",price:1500},{name:"ビールG",price:1000},{name:"カラオケ",price:1000},
+  {name:"フード1",price:1000},{name:"フード2",price:1500},{name:"JINRO",price:3000},
+  {name:"その他",price:1000}
 ];
-let menu=loadMenu(), sales=loadSales(), editingId=null;
 
-function loadMenu(){try{const x=JSON.parse(localStorage.getItem(MENU_KEY));return Array.isArray(x)&&x.length?x:defaultMenu.slice()}catch(e){return defaultMenu.slice()}}
-function loadSales(){try{const x=JSON.parse(localStorage.getItem(SALES_KEY));return Array.isArray(x)?x:[]}catch(e){return []}}
-function saveMenu(){localStorage.setItem(MENU_KEY,JSON.stringify(menu))}
-function saveSales(){localStorage.setItem(SALES_KEY,JSON.stringify(sales))}
-function yen(n){return "¥"+Math.round(n||0).toLocaleString("ja-JP")}
-function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-function today(){let d=new Date();return new Date(d-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
-function subtotalOf(s){return (s.items||[]).reduce((a,i)=>a+(Number(i.price)||0)*(Number(i.qty)||0),0)}
-function taxOf(s){return Math.floor(subtotalOf(s)*.10)}
-function totalOf(s){return subtotalOf(s)+taxOf(s)}
-function download(name,text,type="application/json"){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+let menuPresets = loadMenuPresets();
 
-function itemOptions(selected){return menu.map((m,i)=>`<option value="${i}" ${String(i)===String(selected)?"selected":""}>${esc(m.name)}（${yen(m.price)}）</option>`).join("")}
-function renderItems(data){
- const box=document.getElementById("items");
- box.innerHTML="";
- (data||[{menuIndex:0,qty:1}]).forEach((it,i)=>{
-  const row=document.createElement("div");row.className="item-row";
-  row.innerHTML=`<div><label>品目</label><select class="item-select">${itemOptions(it.menuIndex??0)}</select></div>
-   <div><label>単価</label><input class="unit" readonly></div>
-   <div><label>数量</label><input class="qty" type="number" min="1" step="1" value="${it.qty||1}"></div>
-   <div><label>金額</label><div class="amount line-total">¥0</div></div>
-   <button class="btn danger remove">削除</button>`;
-  box.appendChild(row);
-  const sel=row.querySelector(".item-select"), qty=row.querySelector(".qty"), unit=row.querySelector(".unit");
-  function recalc(){let m=menu[Number(sel.value)]||{price:0};unit.value=yen(m.price);row.querySelector(".line-total").textContent=yen(m.price*Math.max(1,Number(qty.value)||1));recalcTicket()}
-  sel.onchange=recalc;qty.oninput=recalc;row.querySelector(".remove").onclick=()=>{row.remove();recalcTicket()};
-  recalc();
- });
+function loadMenuPresets() {
+  try {
+    const raw = localStorage.getItem(MENU_STORAGE_KEY);
+    const data = raw ? JSON.parse(raw) : null;
+    if (Array.isArray(data) && data.length) {
+      return data.filter(m => m && String(m.name || "").trim() && Number.isFinite(Number(m.price)))
+        .map(m => ({name:String(m.name).trim(), price:Math.max(0, Number(m.price)||0)}));
+    }
+  } catch(e) {
+    console.error(e);
+  }
+  return DEFAULT_MENU_PRESETS.map(m => ({...m}));
 }
-function refreshAllItemSelects(){
- document.querySelectorAll(".item-select").forEach(sel=>{
-  const old=sel.value;sel.innerHTML=itemOptions(old);
-  if([...sel.options].some(o=>o.value===old))sel.value=old;else if(sel.options.length)sel.selectedIndex=0;
-  sel.dispatchEvent(new Event("change"));
- });
-}
-function recalcTicket(){
- let st=0;document.querySelectorAll("#items .item-row").forEach(r=>{st+=Number(r.querySelector(".line-total").textContent.replace(/[¥,]/g,""))||0});
- let tx=Math.floor(st*.10);document.getElementById("subtotal").textContent=yen(st);document.getElementById("tax").textContent=yen(tx);document.getElementById("total").textContent=yen(st+tx)
-}
-function ticketData(){
- const items=[...document.querySelectorAll("#items .item-row")].map(r=>{let i=Number(r.querySelector(".item-select").value),q=Math.max(1,Math.floor(Number(r.querySelector(".qty").value)||1));return {name:menu[i]?.name||"",price:Number(menu[i]?.price)||0,qty:q}})
- .filter(x=>x.name);
- return {customer:document.getElementById("customer").value.trim()||"（未入力）",date:document.getElementById("ticketDate").value||today(),items}
-}
-function clearTicket(){editingId=null;document.getElementById("customer").value="";document.getElementById("ticketDate").value=today();renderItems([{menuIndex:0,qty:1}])}
-function saveCurrent(){
- const d=ticketData();if(!d.items.length){alert("品目を1つ以上入力してください。");return}
- if(editingId){const ix=sales.findIndex(s=>s.id===editingId);if(ix>=0)sales[ix]={...sales[ix],...d}}
- else sales.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),createdAt:new Date().toISOString(),...d});
- saveSales();alert(editingId?"伝票を編集保存しました。":"精算して売上を保存しました。");clearTicket();renderHistory();renderDaily();renderMonthly()
-}
-function editSale(id){const s=sales.find(x=>x.id===id);if(!s)return;editingId=id;document.getElementById("customer").value=s.customer;document.getElementById("ticketDate").value=s.date;renderItems(s.items.map(it=>({menuIndex:Math.max(0,menu.findIndex(m=>m.name===it.name)),qty:it.qty})));showTab("ticket")}
-function deleteSale(id){if(!confirm("この売上を削除しますか？"))return;sales=sales.filter(s=>s.id!==id);saveSales();renderHistory();renderDaily();renderMonthly()}
-function renderHistory(){
- const b=document.getElementById("historyBody");if(!sales.length){b.innerHTML='<tr><td colspan="4" class="empty">売上履歴はありません。</td></tr>';return}
- b.innerHTML=sales.slice().sort((a,b)=>b.date.localeCompare(a.date)||String(b.createdAt).localeCompare(String(a.createdAt))).map(s=>`<tr><td>${esc(s.date)}</td><td>${esc(s.customer)}</td><td class="right"><b>${yen(totalOf(s))}</b></td><td><button class="btn secondary" onclick="editSale('${s.id}')">編集</button> <button class="btn danger" onclick="deleteSale('${s.id}')">削除</button></td></tr>`).join("")
-}
-function renderDaily(){
- const date=document.getElementById("dailyDate").value||today(), xs=sales.filter(s=>s.date===date),st=xs.reduce((a,s)=>a+subtotalOf(s),0),tt=xs.reduce((a,s)=>a+totalOf(s),0);
- document.getElementById("dailyCount").textContent=xs.length;document.getElementById("dailySubtotal").textContent=yen(st);document.getElementById("dailyTotal").textContent=yen(tt)
-}
-function renderMonthly(){
- const mon=document.getElementById("monthlyMonth").value||today().slice(0,7), xs=sales.filter(s=>s.date.startsWith(mon)),st=xs.reduce((a,s)=>a+subtotalOf(s),0),tt=xs.reduce((a,s)=>a+totalOf(s),0);
- document.getElementById("monthlyCount").textContent=xs.length;document.getElementById("monthlySubtotal").textContent=yen(st);document.getElementById("monthlyTotal").textContent=yen(tt);
- const by={};xs.forEach(s=>{by[s.date]??=[];by[s.date].push(s)});document.getElementById("monthlyBody").innerHTML=Object.keys(by).sort().map(d=>{let q=by[d];return `<tr><td>${d}</td><td>${q.length}</td><td>${yen(q.reduce((a,s)=>a+subtotalOf(s),0))}</td><td>${yen(q.reduce((a,s)=>a+totalOf(s),0))}</td></tr>`}).join("")||'<tr><td colspan="4" class="empty">該当データはありません。</td></tr>'
-}
-function renderMenu(){
- const box=document.getElementById("menuList");box.innerHTML="";
- menu.forEach((m,i)=>{const r=document.createElement("div");r.className="menu-row";r.innerHTML=`<input value="${esc(m.name)}"><input type="number" min="0" step="1" value="${m.price}"><button class="btn danger">削除</button>`;const n=r.children[0],p=r.children[1];r.querySelector("button").onclick=()=>{if(confirm("この品目を削除しますか？")){menu.splice(i,1);saveMenu();renderMenu();refreshAllItemSelects()}};n.onchange=()=>{if(n.value.trim()){m.name=n.value.trim();saveMenu();refreshAllItemSelects()}};p.onchange=()=>{m.price=Math.max(0,Math.floor(Number(p.value)||0));saveMenu();refreshAllItemSelects()};box.appendChild(r)})
-}
-function backupMenu(){download("SAKURA店舗伝票_品目設定_"+today()+".json",JSON.stringify({app:"SAKURA店舗伝票",type:"menu-settings",version:1,exportedAt:new Date().toISOString(),menu},null,2))}
-function restoreMenuFile(file){const rd=new FileReader();rd.onload=()=>{try{let x=JSON.parse(rd.result);if(x.type!=="menu-settings"||!Array.isArray(x.menu))throw 0;let a=x.menu.filter(m=>String(m.name||"").trim()).map(m=>({name:String(m.name).trim(),price:Math.max(0,Math.floor(Number(m.price)||0))}));if(!a.length)throw 0;if(confirm(`品目設定${a.length}件で置き換えます。売上データは変更されません。`)){menu=a;saveMenu();renderMenu();refreshAllItemSelects();alert("品目設定を復元しました。")}}catch(e){alert("正しい品目設定バックアップを選択してください。")}};rd.readAsText(file)}
-function backupAll(){download("SAKURA店舗伝票_全データ_"+today()+".json",JSON.stringify({app:"SAKURA店舗伝票",type:"full-backup",version:1,exportedAt:new Date().toISOString(),menu,sales},null,2))}
-function restoreAllFile(file){const rd=new FileReader();rd.onload=()=>{try{let x=JSON.parse(rd.result);if(x.type!=="full-backup"||!Array.isArray(x.menu)||!Array.isArray(x.sales))throw 0;if(confirm(`売上${x.sales.length}件・品目${x.menu.length}件を復元します。現在のデータは置き換わります。`)){menu=x.menu;sales=x.sales;saveMenu();saveSales();renderMenu();renderHistory();renderDaily();renderMonthly();refreshAllItemSelects();alert("全データを復元しました。")}}catch(e){alert("正しい全データバックアップを選択してください。")}};rd.readAsText(file)}
-function csvCell(x){return '"'+String(x??"").replace(/"/g,'""')+'"'}
-function exportHistoryCSV(){let rows=[["日付","お客様","合計金額","品目","単価","数量","金額"]];sales.forEach(s=>{let total=totalOf(s);(s.items||[]).forEach((it,i)=>rows.push([s.date,i===0?s.customer:"",i===0?total:"",it.name,it.price,it.qty,(Number(it.price)||0)*(Number(it.qty)||0)]))});download("SAKURA店舗伝票_売上履歴_"+today()+".csv","\ufeff"+rows.map(r=>r.map(csvCell).join(",")).join("\r\n"),"text/csv;charset=utf-8")}
-function exportMonthlyCSV(){let mon=document.getElementById("monthlyMonth").value||today().slice(0,7),xs=sales.filter(s=>s.date.startsWith(mon)),rows=[["日付","件数","小計","消費税","合計"]];let ds=[...new Set(xs.map(s=>s.date))].sort();ds.forEach(d=>{let q=xs.filter(s=>s.date===d),st=q.reduce((a,s)=>a+subtotalOf(s),0),tx=q.reduce((a,s)=>a+taxOf(s),0);rows.push([d,q.length,st,tx,st+tx])});download("SAKURA店舗伝票_"+mon+".csv","\ufeff"+rows.map(r=>r.map(csvCell).join(",")).join("\r\n"),"text/csv;charset=utf-8")}
-function showTab(id){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===id));if(id==="history")renderHistory();if(id==="daily")renderDaily();if(id==="monthly")renderMonthly();if(id==="menu")renderMenu()}
-document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
-document.getElementById("addItem").onclick=()=>{let a=[...document.querySelectorAll("#items .item-row")].map(r=>({menuIndex:Number(r.querySelector(".item-select").value),qty:Number(r.querySelector(".qty").value)||1}));a.push({menuIndex:0,qty:1});renderItems(a)};
-document.getElementById("saveSale").onclick=saveCurrent;document.getElementById("clearTicket").onclick=()=>{if(confirm("入力内容をクリアしますか？"))clearTicket()};
-document.getElementById("dailyDate").onchange=renderDaily;document.getElementById("monthlyMonth").onchange=renderMonthly;
-document.getElementById("exportHistory").onclick=exportHistoryCSV;document.getElementById("exportMonthly").onclick=exportMonthlyCSV;
-document.getElementById("deleteAllSales").onclick=()=>{if(sales.length&&confirm("売上履歴をすべて削除します。先にバックアップしましたか？")){sales=[];saveSales();renderHistory();renderDaily();renderMonthly()}};
-document.getElementById("addMenu").onclick=()=>{menu.push({name:"新しい品目",price:0});saveMenu();renderMenu();refreshAllItemSelects()};
-document.getElementById("backupMenu").onclick=backupMenu;document.getElementById("restoreMenuBtn").onclick=()=>document.getElementById("restoreMenu").click();document.getElementById("restoreMenu").onchange=e=>{if(e.target.files[0])restoreMenuFile(e.target.files[0]);e.target.value=""};
-document.getElementById("backupAll").onclick=backupAll;document.getElementById("restoreAllBtn").onclick=()=>document.getElementById("restoreAll").click();document.getElementById("restoreAll").onchange=e=>{if(e.target.files[0])restoreAllFile(e.target.files[0]);e.target.value=""};
-document.getElementById("ticketDate").value=today();document.getElementById("dailyDate").value=today();document.getElementById("monthlyMonth").value=today().slice(0,7);renderItems();renderHistory();renderDaily();renderMonthly();renderMenu();
 
-if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js",{scope:"./"}).catch(console.warn))}
+function saveMenuPresets() {
+  try {
+    localStorage.setItem(MENU_STORAGE_KEY, JSON.stringify(menuPresets));
+    return true;
+  } catch(e) {
+    alert("品目設定を保存できませんでした。");
+    return false;
+  }
+}
+
+let globalTotalAmount = 0;
+let editingSaleId = null;
+let invoicePages = [];
+let activeInvoicePageId = null;
+
+window.addEventListener("load", initPage);
+
+function todayString() {
+  const d = new Date();
+  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0,10);
+}
+
+function getStartupMenuItem() {
+  // 新しい伝票の最初の品目は「テーブルチャージ」を優先する。
+  // テーブルチャージが品目設定から削除されている場合は、先頭の登録品目を使用する。
+  const tableChargeMenu = menuPresets.find(m => String(m.name).trim() === "テーブルチャージ");
+  const item = tableChargeMenu || menuPresets[0] || {name:"テーブルチャージ", price:2500};
+  return {
+    name: String(item.name || "テーブルチャージ"),
+    price: Math.max(0, Number(item.price) || 0),
+    qty: 1
+  };
+}
+
+function makeInvoicePage() {
+  const startupItem = getStartupMenuItem();
+  return {
+    id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + "-" + Math.random()),
+    customer: "",
+    date: todayString(),
+    items: [startupItem],
+    editingSaleId: null
+  };
+}
+
+function initPage() {
+  invoicePages = [makeInvoicePage()];
+  activeInvoicePageId = invoicePages[0].id;
+  editingSaleId = null;
+  renderInvoiceTabs();
+  loadActiveInvoicePage();
+}
+
+function getActiveInvoicePage() {
+  return invoicePages.find(p => p.id === activeInvoicePageId) || null;
+}
+
+function saveCurrentInvoiceToState() {
+  const page = getActiveInvoicePage();
+  if (!page || !document.getElementById("customer-name")) return;
+  page.customer = document.getElementById("customer-name").value.trim();
+  page.date = document.getElementById("current-date").value || todayString();
+  page.items = collectItems();
+  page.editingSaleId = editingSaleId;
+}
+
+function loadActiveInvoicePage() {
+  const page = getActiveInvoicePage();
+  if (!page) return;
+  editingSaleId = page.editingSaleId || null;
+  document.getElementById("current-date").value = page.date || todayString();
+  document.getElementById("customer-name").value = page.customer || "";
+  const tbody = document.getElementById("item-list");
+  tbody.innerHTML = "";
+  const items = (page.items && page.items.length) ? page.items : [getStartupMenuItem()];
+  items.forEach(item => addRow(item));
+  document.title = page.customer ? `${page.customer} 様 - 伝票` : "SAKURA店舗伝票";
+  renderInvoiceTabs();
+  calculateTotal();
+}
+
+function renderInvoiceTabs() {
+  const tabs = document.getElementById("invoice-tabs");
+  if (!tabs) return;
+  tabs.innerHTML = invoicePages.map((page,index) => {
+    const label = page.customer ? `${escapeHtml(page.customer)} 様` : `新規のお客様 ${index+1}`;
+    const active = page.id === activeInvoicePageId ? "active" : "";
+    return `<div class="invoice-tab ${active}" onclick="switchInvoicePage('${page.id}')"><span>${label}</span><button class="tab-close" title="この伝票を閉じる" onclick="event.stopPropagation();closeInvoicePage('${page.id}')">×</button></div>`;
+  }).join("");
+}
+
+function createInvoicePage() {
+  saveCurrentInvoiceToState();
+  const page = makeInvoicePage();
+  invoicePages.push(page);
+  activeInvoicePageId = page.id;
+  editingSaleId = null;
+  loadActiveInvoicePage();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function switchInvoicePage(id) {
+  if (id === activeInvoicePageId) return;
+  saveCurrentInvoiceToState();
+  if (!invoicePages.some(p=>p.id===id)) return;
+  activeInvoicePageId = id;
+  loadActiveInvoicePage();
+}
+
+function closeInvoicePage(id) {
+  const index = invoicePages.findIndex(p=>p.id===id);
+  if (index < 0) return;
+  const page = invoicePages[index];
+  const defaultPrice = Number(menuPresets[0]?.price || 0);
+  const first = (page.items || [])[0];
+  const hasData = !!page.customer || (page.items || []).length > 1 || !!first && (Number(first.price)!==defaultPrice || Number(first.qty)!==1);
+  if (hasData && !confirm("この伝票を閉じますか？\n未精算の入力内容は保存されません。")) return;
+  invoicePages.splice(index,1);
+  if (!invoicePages.length) invoicePages.push(makeInvoicePage());
+  if (!invoicePages.some(p=>p.id===activeInvoicePageId)) {
+    activeInvoicePageId = invoicePages[Math.max(0,index-1)].id;
+  }
+  loadActiveInvoicePage();
+}
+
+function updateTabTitle() {
+  const name = document.getElementById("customer-name").value.trim();
+  document.title = name ? `${name} 様 - 伝票` : "SAKURA店舗伝票";
+  saveCurrentInvoiceToState();
+  renderInvoiceTabs();
+}
+
+function openNewCustomer() { createInvoicePage(); }
+
+function addRow(item=null) {
+  const tbody = document.getElementById("item-list");
+  const tr = document.createElement("tr");
+  const optionsHtml = menuPresets.map((m,i) =>
+    `<option value="${m.price}" ${item && item.name===m.name ? "selected" : ""}>${escapeHtml(m.name)}</option>`
+  ).join("");
+  const defaultPrice = item ? Math.max(0, Number(item.price)||0) : menuPresets[0].price;
+  const qty = item ? Math.max(1, Number(item.qty)||1) : 1;
+
+  tr.innerHTML = `
+    <td><select class="select-item" onchange="updateRowPrice(this)">${optionsHtml}</select></td>
+    <td><input type="number" class="input-price" min="0" step="1" value="${defaultPrice}" oninput="calculateTotal()"></td>
+    <td><input type="number" class="input-qty" min="1" step="1" value="${qty}" oninput="calculateTotal()"></td>
+    <td>¥<span class="row-total">0</span></td>
+    <td class="delete-col"><button class="btn btn-danger" onclick="deleteRow(this)">削除</button></td>`;
+  tbody.appendChild(tr);
+  calculateTotal();
+  if (invoicePages.length) saveCurrentInvoiceToState();
+}
+
+function updateRowPrice(selectEl) {
+  const tr = selectEl.closest("tr");
+  tr.querySelector(".input-price").value = Math.max(0, Number(selectEl.value)||0);
+  calculateTotal();
+  saveCurrentInvoiceToState();
+}
+
+function deleteRow(btn) {
+  btn.closest("tr").remove();
+  calculateTotal();
+  saveCurrentInvoiceToState();
+}
+
+function calculateTotal() {
+  let subtotal = 0;
+  document.querySelectorAll("#item-list tr").forEach(row => {
+    const price = Math.max(0, parseInt(row.querySelector(".input-price")?.value,10)||0);
+    const qty = Math.max(0, parseInt(row.querySelector(".input-qty")?.value,10)||0);
+    const total = price * qty;
+    row.querySelector(".row-total").textContent = total.toLocaleString();
+    subtotal += total;
+  });
+  const tax = Math.floor(subtotal * 0.10);
+  globalTotalAmount = subtotal + tax;
+  document.getElementById("subtotal").textContent = subtotal.toLocaleString();
+  document.getElementById("tax").textContent = tax.toLocaleString();
+  document.getElementById("total-amount").textContent = globalTotalAmount.toLocaleString();
+}
+
+function readSales() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const data = raw ? JSON.parse(raw) : [];
+    return Array.isArray(data) ? data : [];
+  } catch(e) {
+    console.error(e);
+    alert("売上データを読み込めません。データが破損している可能性があります。");
+    return [];
+  }
+}
+
+function writeSales(data) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    return true;
+  } catch(e) {
+    console.error(e);
+    alert("売上データを保存できません。ブラウザの保存容量をご確認ください。");
+    return false;
+  }
+}
+
+function collectItems() {
+  const items = [];
+  document.querySelectorAll("#item-list tr").forEach(row => {
+    const select = row.querySelector(".select-item");
+    const price = Math.max(0, parseInt(row.querySelector(".input-price")?.value,10)||0);
+    const qty = Math.max(1, parseInt(row.querySelector(".input-qty")?.value,10)||1);
+    if (select) items.push({name:select.options[select.selectedIndex].text, price, qty});
+  });
+  return items;
+}
+
+
+const CLOUD_URL_KEY = "sakura_cloud_webapp_url";
+const CLOUD_API_KEY = "sakura_cloud_api_key";
+const CLOUD_IFRAME_ID = "sakura-cloud-sync-frame";
+
+function getCloudSettings() {
+  return {
+    url: (localStorage.getItem(CLOUD_URL_KEY) || "").trim(),
+    apiKey: localStorage.getItem(CLOUD_API_KEY) || ""
+  };
+}
+
+function setCloudStatus(message, ok=false, error=false) {
+  const el = document.getElementById("cloud-status");
+  if (!el) return;
+  el.textContent = message;
+  el.className = "cloud-status" + (ok ? " ok" : "") + (error ? " err" : "");
+}
+
+function openCloudSettings() {
+  const s = getCloudSettings();
+  document.getElementById("cloud-webapp-url").value = s.url;
+  document.getElementById("cloud-api-key").value = s.apiKey;
+  document.getElementById("cloud-panel").style.display = "block";
+  document.getElementById("cloud-panel").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function closeCloudSettings() {
+  document.getElementById("cloud-panel").style.display = "none";
+}
+
+function saveCloudSettings() {
+  const url = document.getElementById("cloud-webapp-url").value.trim();
+  const apiKey = document.getElementById("cloud-api-key").value.trim();
+  if (!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec(?:\?.*)?$/.test(url)) {
+    alert("Apps Scriptの「/exec」で終わるWebアプリURLを入力してください。");
+    return;
+  }
+  if (!apiKey) {
+    alert("店舗キーを入力してください。");
+    return;
+  }
+  localStorage.setItem(CLOUD_URL_KEY, url);
+  localStorage.setItem(CLOUD_API_KEY, apiKey);
+  setCloudStatus("☁️ Google接続設定済み", true);
+  alert("Google保存設定を保存しました。");
+}
+
+function disconnectCloud() {
+  if (!confirm("Google保存設定をこの端末から削除しますか？")) return;
+  localStorage.removeItem(CLOUD_URL_KEY);
+  localStorage.removeItem(CLOUD_API_KEY);
+  setCloudStatus("☁️ Google未接続");
+}
+
+function ensureCloudIframe() {
+  let frame = document.getElementById(CLOUD_IFRAME_ID);
+  if (!frame) {
+    frame = document.createElement("iframe");
+    frame.id = CLOUD_IFRAME_ID;
+    frame.name = CLOUD_IFRAME_ID;
+    frame.style.display = "none";
+    document.body.appendChild(frame);
+  }
+  return frame;
+}
+
+function syncSalesToGoogle(showAlert=false) {
+  const s = getCloudSettings();
+  if (!s.url || !s.apiKey) {
+    if (showAlert) alert("Google保存設定が未登録です。「☁️ Google保存設定」から設定してください。");
+    setCloudStatus("☁️ Google未接続", false, false);
+    return false;
+  }
+
+  const sales = readSales();
+  const payload = JSON.stringify({
+    version: 1,
+    app: "SAKURA店舗伝票",
+    apiKey: s.apiKey,
+    sentAt: new Date().toISOString(),
+    sales: sales
+  });
+
+  try {
+    const frame = ensureCloudIframe();
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = s.url;
+    form.target = CLOUD_IFRAME_ID;
+    form.style.display = "none";
+
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "payload";
+    input.value = payload;
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+    form.remove();
+
+    setCloudStatus("☁️ Googleへ同期中…");
+    setTimeout(() => setCloudStatus("☁️ 同期送信済み", true), 1200);
+    if (showAlert) {
+      alert("Googleスプレッドシートへ同期データを送信しました。数秒後に集計が更新されます。");
+    }
+    return true;
+  } catch (e) {
+    console.error(e);
+    setCloudStatus("☁️ 同期エラー", false, true);
+    if (showAlert) alert("Googleへの同期に失敗しました。URLと店舗キーを確認してください。");
+    return false;
+  }
+}
+
+function testCloudConnection() {
+  const s = getCloudSettings();
+  if (!s.url || !s.apiKey) {
+    alert("先にGoogle保存設定を入力してください。");
+    return;
+  }
+  const iframe = ensureCloudIframe();
+  iframe.onload = function() {
+    setCloudStatus("☁️ 接続テスト送信済み", true);
+  };
+  syncSalesToGoogle(true);
+}
+
+function updateCloudStatusOnStart() {
+  const s = getCloudSettings();
+  setCloudStatus(s.url && s.apiKey ? "☁️ Google接続設定済み" : "☁️ Google未接続", !!(s.url && s.apiKey));
+}
+
+function checkoutCustomer() {
+  const date = document.getElementById("current-date").value || todayString();
+  const customer = document.getElementById("customer-name").value.trim() || "匿名希望";
+  const items = collectItems();
+
+  if (!items.length) { alert("品目がありません。"); return; }
+  calculateTotal();
+
+  const subtotal = items.reduce((s,i)=>s+i.price*i.qty,0);
+  const tax = Math.floor(subtotal*0.10);
+  const total = subtotal + tax;
+
+  const message = editingSaleId
+    ? `${customer} 様の売上データを更新しますか？`
+    : `${customer} 様の精算を完了し、売上データを保存しますか？`;
+
+  if (!confirm(message)) return;
+
+  const sales = readSales();
+
+  if (editingSaleId) {
+    const index = sales.findIndex(s=>s.id===editingSaleId);
+    if (index < 0) { alert("編集対象の売上が見つかりません。"); return; }
+    sales[index] = {...sales[index], date, customer, items, subtotal, tax, total,
+      updatedAt:Date.now()};
+    editingSaleId = null;
+  } else {
+    sales.push({id:crypto.randomUUID ? crypto.randomUUID() : String(Date.now())+"-"+Math.random(),
+      date, customer, items, subtotal, tax, total, timestamp:Date.now()});
+  }
+
+  if (!writeSales(sales)) return;
+  syncSalesToGoogle(false);
+  alert("売上データを保存しました。" + (getCloudSettings().url ? "\nGoogleスプレッドシートへ同期を送信しました。" : ""));
+
+  const completedId = activeInvoicePageId;
+  invoicePages = invoicePages.filter(p => p.id !== completedId);
+  if (!invoicePages.length) invoicePages.push(makeInvoicePage());
+  activeInvoicePageId = invoicePages[0].id;
+  editingSaleId = null;
+  loadActiveInvoicePage();
+  closeHistory();
+}
+
+
+
+function refreshAllItemSelects() {
+  // 画面上の品目選択欄を最新のmenuPresetsで更新する。
+  // 既存の選択値は、同じ項目が残っていれば維持する。
+  const selects = document.querySelectorAll('select[data-item-select], .item-select');
+  selects.forEach(select => {
+    const currentValue = select.value;
+    select.innerHTML = menuPresets.map((m, index) =>
+      `<option value="${index}">${escapeHtml(m.name)}（¥${Number(m.price).toLocaleString()}）</option>`
+    ).join("");
+    if ([...select.options].some(o => o.value === currentValue)) {
+      select.value = currentValue;
+    } else if (select.options.length) {
+      select.selectedIndex = 0;
+    }
+  });
+}
+
+function refreshMenuUI() {
+  refreshAllItemSelects();
+
+  // 既存プログラムに専用のメニュー描画関数がある場合も更新する。
+  if (typeof renderMenuButtons === "function") {
+    try { renderMenuButtons(); } catch (e) { console.warn(e); }
+  }
+  if (typeof renderMenuOptions === "function") {
+    try { renderMenuOptions(); } catch (e) { console.warn(e); }
+  }
+}
+
+function openMenuManager() {
+  document.getElementById("history-panel").style.display = "none";
+  document.getElementById("monthly-panel").style.display = "none";
+  document.getElementById("menu-panel").style.display = "block";
+  document.querySelector(".container > h1").style.display = "none";
+  renderMenuManager();
+  document.getElementById("menu-panel").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function closeMenuManager() {
+  document.getElementById("menu-panel").style.display = "none";
+  document.querySelector(".container > h1").style.display = "block";
+  refreshMenuUI();
+}
+
+function renderMenuManager() {
+  const tbody = document.getElementById("menu-list");
+  if (!menuPresets.length) {
+    tbody.innerHTML = '<tr><td colspan="3" class="empty">登録されている品目がありません。</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = menuPresets.map((m,index) => `
+    <tr>
+      <td><input type="text" id="menu-name-${index}" value="${escapeAttr(m.name)}" style="width:100%;padding:7px;"></td>
+      <td><input type="number" id="menu-price-${index}" value="${Number(m.price)||0}" min="0" step="1" style="width:120px;padding:7px;"></td>
+      <td class="actions">
+        <button class="btn btn-primary" onclick="saveMenuItem(${index})">保存</button>
+        <button class="btn btn-danger" onclick="deleteMenuItem(${index})">削除</button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+function addMenuItem() {
+  const name = prompt("追加する品目名を入力してください。");
+  if (name === null) return;
+
+  const trimmed = name.trim();
+  if (!trimmed) {
+    alert("品目名を入力してください。");
+    return;
+  }
+
+  const priceText = prompt(`${trimmed} の金額を入力してください。`, "1000");
+  if (priceText === null) return;
+
+  const price = Number(priceText);
+  if (!Number.isFinite(price) || price < 0) {
+    alert("金額は0以上の数字で入力してください。");
+    return;
+  }
+
+  if (menuPresets.some(m => m.name === trimmed)) {
+    alert("同じ品目名がすでに登録されています。");
+    return;
+  }
+
+  menuPresets.push({name:trimmed, price:Math.floor(price)});
+  if (saveMenuPresets()) {
+    renderMenuManager();
+    refreshMenuUI();
+    alert("品目を追加しました。\n伝票の品目一覧にも反映しました。");
+  }
+}
+
+function saveMenuItem(index) {
+  const nameInput = document.getElementById(`menu-name-${index}`);
+  const priceInput = document.getElementById(`menu-price-${index}`);
+  const name = nameInput ? nameInput.value.trim() : "";
+  const price = priceInput ? Number(priceInput.value) : NaN;
+
+  if (!name) {
+    alert("品目名を入力してください。");
+    return;
+  }
+  if (!Number.isFinite(price) || price < 0) {
+    alert("金額は0以上の数字で入力してください。");
+    return;
+  }
+  if (menuPresets.some((m,i) => i !== index && m.name === name)) {
+    alert("同じ品目名がすでに登録されています。");
+    return;
+  }
+
+  menuPresets[index] = {name, price:Math.floor(price)};
+  if (saveMenuPresets()) {
+    renderMenuManager();
+    refreshMenuUI();
+    alert("品目と金額を保存しました。\n伝票の品目一覧にも反映しました。");
+  }
+}
+
+function deleteMenuItem(index) {
+  const item = menuPresets[index];
+  if (!item) return;
+
+  if (menuPresets.length <= 1) {
+    alert("品目は最低1件必要です。");
+    return;
+  }
+
+  if (!confirm(`「${item.name}」を品目一覧から削除しますか？\n過去に保存した売上データの明細は削除されません。`)) return;
+
+  menuPresets.splice(index,1);
+  if (saveMenuPresets()) {
+    renderMenuManager();
+    refreshMenuUI();
+    alert("品目を削除しました。\n伝票の品目一覧にも反映しました。");
+  }
+}
+
+
+function backupMenuSettings() {
+  if (!Array.isArray(menuPresets) || !menuPresets.length) {
+    alert("バックアップする品目設定がありません。");
+    return;
+  }
+
+  const payload = {
+    app: "スナック伝票管理",
+    type: "menu-settings",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    menu: menuPresets.map(m => ({
+      name: String(m.name || "").trim(),
+      price: Math.max(0, Math.floor(Number(m.price) || 0))
+    })).filter(m => m.name)
+  };
+
+  const blob = new Blob(
+    [JSON.stringify(payload, null, 2)],
+    {type:"application/json;charset=utf-8"}
+  );
+
+  downloadBlob(
+    blob,
+    `品目設定バックアップ_${todayString()}.json`
+  );
+
+  alert("品目設定をバックアップしました。");
+}
+
+function restoreMenuSettings(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    try {
+      const payload = JSON.parse(reader.result);
+
+      // 品目設定専用バックアップのみ受け付ける
+      if (!payload || payload.type !== "menu-settings" || !Array.isArray(payload.menu)) {
+        throw new Error("品目設定バックアップではありません。");
+      }
+
+      const imported = payload.menu
+        .filter(m => m && String(m.name || "").trim() && Number.isFinite(Number(m.price)))
+        .map(m => ({
+          name: String(m.name).trim(),
+          price: Math.max(0, Math.floor(Number(m.price) || 0))
+        }));
+
+      if (!imported.length) {
+        alert("有効な品目設定がありません。");
+        return;
+      }
+
+      // 重複品目名を除去
+      const unique = [];
+      const names = new Set();
+      imported.forEach(m => {
+        if (!names.has(m.name)) {
+          names.add(m.name);
+          unique.push(m);
+        }
+      });
+
+      const message =
+        `品目設定 ${unique.length}件を復元します。\\n\\n` +
+        "現在登録されている品目設定は、バックアップの内容に置き換わります。\\n" +
+        "売上履歴・売上データは変更されません。\\n\\n" +
+        "復元しますか？";
+
+      if (!confirm(message)) return;
+
+      menuPresets = unique;
+
+      if (saveMenuPresets()) {
+        renderMenuManager();
+        refreshMenuUI();
+        alert("品目設定を復元しました。\\n売上データには影響ありません。");
+      }
+    } catch (e) {
+      console.error(e);
+      alert(
+        "品目設定バックアップを読み込めませんでした。\\n" +
+        "正しい「品目設定バックアップ」ファイルを選択してください。"
+      );
+    } finally {
+      input.value = "";
+    }
+  };
+
+  reader.readAsText(file, "utf-8");
+}
+
+function openHistory() {
+  document.getElementById("history-panel").style.display = "block";
+  document.querySelector(".container > h1").style.display = "none";
+  renderHistory();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function closeHistory() {
+  document.getElementById("history-panel").style.display = "none";
+  document.getElementById("monthly-panel").style.display = "none";
+  document.getElementById("menu-panel").style.display = "none";
+  document.querySelector(".container > h1").style.display = "block";
+}
+
+
+function calculateSaleSubtotal(sale) {
+  // 保存済みの「subtotal」を信用せず、明細から再計算する。
+  // これにより旧バージョンのデータや編集後データでも小計の不整合を防ぐ。
+  if (sale && Array.isArray(sale.items)) {
+    return sale.items.reduce((sum, item) => {
+      const price = Math.max(0, Number(item?.price) || 0);
+      const qty = Math.max(0, Number(item?.qty) || 0);
+      return sum + price * qty;
+    }, 0);
+  }
+  return Math.max(0, Number(sale?.subtotal) || 0);
+}
+
+function calculateSaleTax(sale) {
+  const subtotal = calculateSaleSubtotal(sale);
+  return Math.floor(subtotal * 0.10);
+}
+
+function calculateSaleTotal(sale) {
+  return calculateSaleSubtotal(sale) + calculateSaleTax(sale);
+}
+
+function renderHistory() {
+  const date = document.getElementById("history-date").value;
+  const customer = document.getElementById("history-customer").value.trim().toLowerCase();
+  const sales = readSales().filter(s =>
+    (!date || s.date===date) &&
+    (!customer || String(s.customer||"").toLowerCase().includes(customer))
+  );
+
+  let subtotal=0,total=0;
+  sales.forEach(s=>{
+    subtotal += calculateSaleSubtotal(s);
+    total += calculateSaleTotal(s);
+  });
+  document.getElementById("stat-count").textContent = sales.length.toLocaleString();
+  document.getElementById("stat-subtotal").textContent = subtotal.toLocaleString();
+  document.getElementById("stat-total").textContent = total.toLocaleString();
+
+  const tbody = document.getElementById("history-list");
+  if (!sales.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">該当する売上データはありません。</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = sales.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)).map(s=>{
+    const itemText = (s.items||[]).map(i=>`${escapeHtml(i.name)} × ${i.qty}`).join("<br>");
+    const dt = s.timestamp ? new Date(s.timestamp).toLocaleString("ja-JP") : "";
+    return `<tr>
+      <td>${escapeHtml(dt)}</td><td>${escapeHtml(s.date||"")}</td>
+      <td>${escapeHtml(s.customer||"")}</td><td>${itemText}</td>
+      <td>¥${(Number(s.total)||0).toLocaleString()}</td>
+      <td class="actions">
+        <button class="btn btn-warning" onclick="editSale('${escapeAttr(s.id)}')">編集</button>
+        <button class="btn btn-danger" onclick="deleteSale('${escapeAttr(s.id)}')">削除</button>
+      </td></tr>`;
+  }).join("");
+}
+
+function clearHistoryFilters() {
+  document.getElementById("history-date").value="";
+  document.getElementById("history-customer").value="";
+  renderHistory();
+}
+
+function editSale(id) {
+  const sale = readSales().find(s=>String(s.id)===String(id));
+  if (!sale) { alert("売上データが見つかりません。"); return; }
+  saveCurrentInvoiceToState();
+  const page = makeInvoicePage();
+  page.customer = sale.customer || "";
+  page.date = sale.date || todayString();
+  page.items = (sale.items||[]).map(item=>({name:item.name,price:Number(item.price)||0,qty:Number(item.qty)||1}));
+  page.editingSaleId = sale.id;
+  invoicePages.push(page);
+  activeInvoicePageId = page.id;
+  editingSaleId = sale.id;
+  closeHistory();
+  loadActiveInvoicePage();
+}
+
+function deleteSale(id) {
+  const sales = readSales();
+  const sale = sales.find(s=>String(s.id)===String(id));
+  if (!sale) { alert("削除対象が見つかりません。"); return; }
+
+  if (!confirm(`${sale.date} / ${sale.customer} 様 / ¥${Number(sale.total||0).toLocaleString()} を削除しますか？\nこの操作は元に戻せません。`)) return;
+  const next = sales.filter(s=>String(s.id)!==String(id));
+  if (writeSales(next)) { syncSalesToGoogle(false); alert("売上データを削除しました。"); renderHistory(); }
+}
+
+function backupData() {
+  const data = readSales();
+  const payload = {
+    app:"スナック伝票管理",
+    version:2,
+    exportedAt:new Date().toISOString(),
+    sales:data
+  };
+  const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json;charset=utf-8"});
+  downloadBlob(blob, `snack_sales_backup_${todayString()}.json`);
+}
+
+function restoreData(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const payload = JSON.parse(reader.result);
+      const imported = Array.isArray(payload) ? payload : payload.sales;
+      if (!Array.isArray(imported)) throw new Error("売上配列がありません");
+
+      const valid = imported.filter(s =>
+        s && s.date && Array.isArray(s.items) &&
+        Number.isFinite(Number(s.total))
+      );
+
+      if (!confirm(`${valid.length}件の売上データを読み込みます。\n現在のデータに追加しますか？`)) return;
+
+      const current = readSales();
+      const map = new Map(current.map(s=>[String(s.id),s]));
+      valid.forEach(s=>{
+        if (!s.id) s.id=String(Date.now())+"-"+Math.random();
+        map.set(String(s.id),s);
+      });
+      if (writeSales(Array.from(map.values()))) {
+        syncSalesToGoogle(false);
+        alert(`${valid.length}件を復元しました。`);
+        renderHistory();
+      }
+    } catch(e) {
+      console.error(e);
+      alert("バックアップファイルを読み込めませんでした。");
+    } finally {
+      input.value="";
+    }
+  };
+  reader.readAsText(file,"utf-8");
+}
+
+
+function showMonthlySummary() {
+  document.getElementById("monthly-panel").style.display = "block";
+  document.getElementById("monthly-month").value = todayString().slice(0,7);
+  renderMonthlySummary();
+  document.getElementById("monthly-panel").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function closeMonthlySummary() {
+  document.getElementById("monthly-panel").style.display = "none";
+}
+
+function renderMonthlySummary() {
+  const month = document.getElementById("monthly-month").value;
+  if (!month) return;
+
+  const sales = readSales().filter(s => String(s.date || "").startsWith(month));
+  let subtotal = 0, tax = 0, total = 0;
+  const daily = {};
+
+  sales.forEach(s => {
+    const date = s.date || "";
+    const st = calculateSaleSubtotal(s);
+    const tx = Math.floor(st * 0.10);
+    const tt = st + tx;
+    subtotal += st; tax += tx; total += tt;
+    if (!daily[date]) daily[date] = {count:0, subtotal:0, tax:0, total:0};
+    daily[date].count++;
+    daily[date].subtotal += st;
+    daily[date].tax += tx;
+    daily[date].total += tt;
+  });
+
+  const days = Object.keys(daily).sort();
+  const average = days.length ? Math.floor(total / days.length) : 0;
+
+  document.getElementById("monthly-count").textContent = sales.length.toLocaleString();
+  document.getElementById("monthly-subtotal").textContent = subtotal.toLocaleString();
+  document.getElementById("monthly-tax").textContent = tax.toLocaleString();
+  document.getElementById("monthly-total").textContent = total.toLocaleString();
+  document.getElementById("monthly-days").textContent = days.length.toLocaleString();
+  document.getElementById("monthly-average").textContent = average.toLocaleString();
+
+  const tbody = document.getElementById("monthly-list");
+  if (!days.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">この月の売上データはありません。</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = days.map(date => {
+    const d = daily[date];
+    return `<tr><td>${escapeHtml(date)}</td><td>${d.count.toLocaleString()}件</td><td>¥${d.subtotal.toLocaleString()}</td><td>¥${d.tax.toLocaleString()}</td><td><strong>¥${d.total.toLocaleString()}</strong></td></tr>`;
+  }).join("");
+}
+
+function exportMonthlyCSV() {
+  const month = document.getElementById("monthly-month").value;
+  if (!month) { alert("対象月を選択してください。"); return; }
+
+  const sales = readSales().filter(s => String(s.date || "").startsWith(month));
+  if (!sales.length) { alert("この月の売上データがありません。"); return; }
+
+  const daily = {};
+  sales.forEach(s => {
+    const date = s.date || "";
+    if (!daily[date]) daily[date] = {count:0, subtotal:0, tax:0, total:0};
+    daily[date].count++;
+    daily[date].subtotal += Number(s.subtotal) || 0;
+    daily[date].tax += Number(s.tax) || 0;
+    daily[date].total += Number(s.total) || 0;
+  });
+
+  const rows = [["日付","伝票数","小計","消費税","売上合計"]];
+  Object.keys(daily).sort().forEach(date => {
+    const d = daily[date];
+    rows.push([date,d.count,d.subtotal,d.tax,d.total]);
+  });
+
+  rows.push([]);
+  rows.push([
+    "月間合計",
+    sales.length,
+    sales.reduce((a,s)=>a+calculateSaleSubtotal(s),0),
+    sales.reduce((a,s)=>a+calculateSaleTax(s),0),
+    sales.reduce((a,s)=>a+calculateSaleTotal(s),0)
+  ]);
+
+  const csv = "\uFEFF" + rows.map(row => row.map(csvEscape).join(",")).join("\r\n");
+  downloadBlob(new Blob([csv], {type:"text/csv;charset=utf-8;"}), `月別売上集計_${month}.csv`);
+}
+
+function exportHistoryCSV() {
+  const date = document.getElementById("history-date").value;
+  const customer = document.getElementById("history-customer").value.trim().toLowerCase();
+  const sales = readSales().filter(s =>
+    (!date || s.date===date) &&
+    (!customer || String(s.customer||"").toLowerCase().includes(customer))
+  );
+
+  if (!sales.length) { alert("CSV出力するデータがありません。"); return; }
+
+  const rows=[["日時","日付","お客様名","合計金額","品目","単価","数量","金額"]];
+  sales.forEach(s=>{
+    const items = Array.isArray(s.items) ? s.items : [];
+
+    // 「お客様名」の直後に合計金額を1つだけ表示し、その後に品目明細を並べる
+    items.forEach((i, index)=>{
+      rows.push([
+        index === 0 && s.timestamp ? new Date(s.timestamp).toLocaleString("ja-JP") : "",
+        index === 0 ? (s.date||"") : "",
+        index === 0 ? (s.customer||"") : "",
+        index === 0 ? (Number(s.total)||0) : "",
+        i.name||"",
+        Number(i.price)||0,
+        Number(i.qty)||0,
+        (Number(i.price)||0)*(Number(i.qty)||0)
+      ]);
+    });
+
+    // 明細がない伝票でも、お客様名と合計金額を出力
+    if (items.length === 0) {
+      rows.push([
+        s.timestamp ? new Date(s.timestamp).toLocaleString("ja-JP") : "",
+        s.date||"",
+        s.customer||"",
+        Number(s.total)||0,
+        "",
+        "",
+        "",
+        ""
+      ]);
+    }
+  });
+
+  const csv="\uFEFF"+rows.map(r=>r.map(csvEscape).join(",")).join("\r\n");
+  downloadBlob(new Blob([csv],{type:"text/csv;charset=utf-8;"}), `売上履歴_${date||todayString()}.csv`);
+}
+
+function csvEscape(v) {
+  return `"${String(v??"").replace(/"/g,'""')}"`;
+}
+
+function downloadBlob(blob, filename) {
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+function escapeHtml(v) {
+  return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+function escapeAttr(v) { return escapeHtml(v); }
+updateCloudStatusOnStart();
 </script>
-</body></html>
+</body>
+</html>
