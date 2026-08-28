@@ -60,12 +60,24 @@ th { background:#f8f9fa; white-space:nowrap; }
   input,select { border:none!important;background:transparent!important;appearance:none;-webkit-appearance:none;color:#000;font-size:16px;width:auto!important; }
 }
 </style>
+
+<style id="sakura-settlement-style">
+.sakura-settlement-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px;padding:10px 0;border-top:1px solid #ddd;font-weight:bold}
+.sakura-settlement-input{width:180px;max-width:55%;padding:8px 10px;font-size:18px;text-align:right;border:2px solid #888;border-radius:6px;box-sizing:border-box}
+.sakura-settlement-input:focus{border-color:#2563eb;outline:none}
+</style>
+
+<style id="sakura-v19-settlement-css">
+.settlement-row td:first-child{font-weight:700}
+.settlement-input{width:180px;max-width:60%;box-sizing:border-box;padding:8px 10px;font-size:20px;font-weight:700;text-align:right;border:2px solid #888;border-radius:6px}
+.settlement-input:focus{border-color:#2563eb;outline:none}
+</style>
 </head>
 <body>
 <div class="container">
   <div class="action-header">
     <button class="btn btn-info" onclick="openHistory()">📊 売上履歴・日別集計</button>
-    <button class="btn btn-primary" onclick="createInvoicePage()">➕ 新しい伝票</button><span style="align-self:center;font-size:12px;color:#666;">新規伝票はテーブルチャージから開始</span>
+    <button class="btn btn-primary" onclick="createInvoicePage()">➕ 新しい伝票</button><span style="align-self:center;font-size:12px;color:#666;"></span>
     <button class="btn btn-secondary" onclick="backupData()">💾 バックアップ</button>
     <button class="btn btn-secondary" onclick="document.getElementById('restore-file').click()">📥 復元</button>
     <button class="btn btn-warning" onclick="openMenuManager()">⚙️ 品目・金額設定</button>
@@ -104,6 +116,7 @@ th { background:#f8f9fa; white-space:nowrap; }
     <tr><td>小計:</td><td>¥<span id="subtotal">0</span></td></tr>
     <tr><td>消費税 (10%):</td><td>¥<span id="tax">0</span></td></tr>
     <tr class="total-row"><td>合計金額:</td><td>¥<span id="total-amount">0</span></td></tr>
+    <tr class="settlement-row"><td>精算金額:</td><td><input id="settlement-amount" class="settlement-input" type="number" min="0" step="1000" inputmode="numeric" value="0"></td></tr>
   </table>
 
   <div class="print-btn-container">
@@ -224,12 +237,41 @@ th { background:#f8f9fa; white-space:nowrap; }
 <script>
 const STORAGE_KEY = "snack_sales_history";
 const MENU_STORAGE_KEY = "snack_menu_presets";
+const MENU_CONFIG_VERSION = "2026-08-28-v15";
+const MENU_CONFIG_VERSION_KEY = "snack_menu_presets_version";
 const DEFAULT_MENU_PRESETS = [
-  {name:"テーブルチャージ",price:2500},{name:"セット料金",price:1000},{name:"割り物（炭酸）",price:500},
-  {name:"割り物（烏龍茶）",price:500},{name:"割り物（無糖紅茶）",price:500},
-  {name:"割り物（緑茶）",price:500},{name:"割り物（お茶）",price:500},
-  {name:"ビールJ",price:1500},{name:"ビールG",price:1000},{name:"カラオケ",price:1000},
-  {name:"フード1",price:1000},{name:"フード2",price:1500},{name:"JINRO",price:3000},
+  {name:"テーブルチャージ",price:1500},
+  {name:"セット料金",price:1500},
+  {name:"割り物(炭酸)",price:500},
+  {name:"割り物(烏龍茶)",price:500},
+  {name:"割り物(無糖紅茶)",price:500},
+  {name:"割り物(緑茶等)",price:500},
+  {name:"氷(ロックアイス)",price:500},
+  {name:"ビールジョッキ",price:1500},
+  {name:"ビールグラス",price:1000},
+  {name:"ハイボール",price:1500},
+  {name:"単品ドリンク(お酒)",price:1000},
+  {name:"単品ドリンク(ソフトドリンク)",price:700},
+  {name:"女の子ドリンク",price:1000},
+  {name:"カラオケ",price:1000},
+  {name:"JINRO",price:4000},
+  {name:"キンミヤ",price:4000},
+  {name:"鏡月",price:4000},
+  {name:"いいちこ",price:4000},
+  {name:"黒霧島",price:4000},
+  {name:"吉四六",price:10000},
+  {name:"角瓶",price:10000},
+  {name:"ロイヤル",price:15000},
+  {name:"ダルマ",price:15000},
+  {name:"テキーラ(ショット)",price:1000},
+  {name:"テキーラ(観覧車)",price:10000},
+  {name:"ＲＯＳＥ",price:15000},
+  {name:"ＭＯＥＴ(ピンク)",price:20000},
+  {name:"日本酒（澪）",price:1000},
+  {name:"冷酒",price:1000},
+  {name:"冷酒（2合）",price:2000},
+  {name:"赤ワイン",price:10000},
+  {name:"白ワイン",price:10000},
   {name:"その他",price:1000}
 ];
 
@@ -237,21 +279,27 @@ let menuPresets = loadMenuPresets();
 
 function loadMenuPresets() {
   try {
+    const version = localStorage.getItem(MENU_CONFIG_VERSION_KEY);
+    if (version !== MENU_CONFIG_VERSION) {
+      const fresh = DEFAULT_MENU_PRESETS.map(m => ({...m}));
+      localStorage.setItem(MENU_STORAGE_KEY, JSON.stringify(fresh));
+      localStorage.setItem(MENU_CONFIG_VERSION_KEY, MENU_CONFIG_VERSION);
+      return fresh;
+    }
     const raw = localStorage.getItem(MENU_STORAGE_KEY);
     const data = raw ? JSON.parse(raw) : null;
     if (Array.isArray(data) && data.length) {
       return data.filter(m => m && String(m.name || "").trim() && Number.isFinite(Number(m.price)))
         .map(m => ({name:String(m.name).trim(), price:Math.max(0, Number(m.price)||0)}));
     }
-  } catch(e) {
-    console.error(e);
-  }
+  } catch(e) { console.error(e); }
   return DEFAULT_MENU_PRESETS.map(m => ({...m}));
 }
 
 function saveMenuPresets() {
   try {
     localStorage.setItem(MENU_STORAGE_KEY, JSON.stringify(menuPresets));
+    localStorage.setItem(MENU_CONFIG_VERSION_KEY, MENU_CONFIG_VERSION);
     return true;
   } catch(e) {
     alert("品目設定を保存できませんでした。");
@@ -276,7 +324,7 @@ function getStartupMenuItem() {
   // 新しい伝票の最初の品目は「テーブルチャージ」を優先する。
   // テーブルチャージが品目設定から削除されている場合は、先頭の登録品目を使用する。
   const tableChargeMenu = menuPresets.find(m => String(m.name).trim() === "テーブルチャージ");
-  const item = tableChargeMenu || menuPresets[0] || {name:"テーブルチャージ", price:2500};
+  const item = tableChargeMenu || menuPresets[0] || {name:"テーブルチャージ", price:1500};
   return {
     name: String(item.name || "テーブルチャージ"),
     price: Math.max(0, Number(item.price) || 0),
@@ -291,6 +339,8 @@ function makeInvoicePage() {
     customer: "",
     date: todayString(),
     items: [startupItem],
+    settlementAmount: 0,
+    settlementManuallySet: false,
     editingSaleId: null
   };
 }
@@ -313,6 +363,12 @@ function saveCurrentInvoiceToState() {
   page.customer = document.getElementById("customer-name").value.trim();
   page.date = document.getElementById("current-date").value || todayString();
   page.items = collectItems();
+  const settlementEl = document.getElementById("settlement-amount");
+  if (settlementEl) {
+    page.settlementAmount = Math.max(0, Math.floor(Number(settlementEl.value) || 0));
+    // Once the user changes the settlement amount, preserve that manual adjustment.
+    if (settlementEl.dataset.manual === "1") page.settlementManuallySet = true;
+  }
   page.editingSaleId = editingSaleId;
 }
 
@@ -321,6 +377,11 @@ function loadActiveInvoicePage() {
   if (!page) return;
   editingSaleId = page.editingSaleId || null;
   document.getElementById("current-date").value = page.date || todayString();
+  const settlementEl = document.getElementById("settlement-amount");
+  if (settlementEl) {
+    settlementEl.value = Math.max(0, Math.floor(Number(page.settlementAmount) || 0));
+    settlementEl.dataset.manual = page.settlementManuallySet ? "1" : "0";
+  }
   document.getElementById("customer-name").value = page.customer || "";
   const tbody = document.getElementById("item-list");
   tbody.innerHTML = "";
@@ -328,6 +389,7 @@ function loadActiveInvoicePage() {
   items.forEach(item => addRow(item));
   document.title = page.customer ? `${page.customer} 様 - 伝票` : "SAKURA店舗伝票";
   renderInvoiceTabs();
+  initSettlementInput();
   calculateTotal();
 }
 
@@ -417,6 +479,29 @@ function deleteRow(btn) {
   saveCurrentInvoiceToState();
 }
 
+function initSettlementInput() {
+  const el = document.getElementById("settlement-amount");
+  if (!el || el.dataset.bound === "1") return;
+  el.dataset.bound = "1";
+  el.addEventListener("input", function(){
+    this.dataset.manual = "1";
+    const page = getActiveInvoicePage();
+    if (page) {
+      page.settlementAmount = Math.max(0, Math.floor(Number(this.value) || 0));
+      page.settlementManuallySet = true;
+    }
+  });
+  el.addEventListener("change", function(){
+    this.dataset.manual = "1";
+    const page = getActiveInvoicePage();
+    if (page) {
+      page.settlementAmount = Math.max(0, Math.floor(Number(this.value) || 0));
+      page.settlementManuallySet = true;
+    }
+    saveCurrentInvoiceToState();
+  });
+}
+
 function calculateTotal() {
   let subtotal = 0;
   document.querySelectorAll("#item-list tr").forEach(row => {
@@ -431,6 +516,20 @@ function calculateTotal() {
   document.getElementById("subtotal").textContent = subtotal.toLocaleString();
   document.getElementById("tax").textContent = tax.toLocaleString();
   document.getElementById("total-amount").textContent = globalTotalAmount.toLocaleString();
+
+  const settlementEl = document.getElementById("settlement-amount");
+  const page = getActiveInvoicePage ? getActiveInvoicePage() : null;
+  if (settlementEl) {
+    const manual = settlementEl.dataset.manual === "1" || (page && page.settlementManuallySet);
+    if (!manual) {
+      settlementEl.value = globalTotalAmount;
+      settlementEl.dataset.manual = "0";
+      if (page) {
+        page.settlementAmount = globalTotalAmount;
+        page.settlementManuallySet = false;
+      }
+    }
+  }
 }
 
 function readSales() {
@@ -542,7 +641,13 @@ function syncSalesToGoogle(showAlert=false) {
     return false;
   }
 
-  const sales = readSales();
+  const sales = readSales().map(s => {
+    const settlement = Number(s.settlementAmount);
+    return Object.assign({}, s, {
+      settlementAmount: Number.isFinite(settlement) && settlement >= 0 ? settlement : Number(s.total || 0),
+      total: Number.isFinite(settlement) && settlement >= 0 ? settlement : Number(s.total || 0)
+    });
+  });
   const payload = JSON.stringify({
     version: 1,
     app: "SAKURA店舗伝票",
@@ -624,11 +729,11 @@ function checkoutCustomer() {
     const index = sales.findIndex(s=>s.id===editingSaleId);
     if (index < 0) { alert("編集対象の売上が見つかりません。"); return; }
     sales[index] = {...sales[index], date, customer, items, subtotal, tax, total,
-      updatedAt:Date.now()};
+      settlementAmount, settlementManuallySet:true, updatedAt:Date.now()};
     editingSaleId = null;
   } else {
     sales.push({id:crypto.randomUUID ? crypto.randomUUID() : String(Date.now())+"-"+Math.random(),
-      date, customer, items, subtotal, tax, total, timestamp:Date.now()});
+      date, customer, items, subtotal, tax, total, settlementAmount, settlementManuallySet:true, timestamp:Date.now()});
   }
 
   if (!writeSales(sales)) return;
@@ -918,7 +1023,9 @@ function calculateSaleTax(sale) {
 }
 
 function calculateSaleTotal(sale) {
-  return calculateSaleSubtotal(sale) + calculateSaleTax(sale);
+  const calculated = calculateSaleSubtotal(sale) + calculateSaleTax(sale);
+  const settlement = Number(sale?.settlementAmount);
+  return Number.isFinite(settlement) && settlement >= 0 ? Math.floor(settlement) : calculated;
 }
 
 function renderHistory() {
@@ -972,6 +1079,8 @@ function editSale(id) {
   page.customer = sale.customer || "";
   page.date = sale.date || todayString();
   page.items = (sale.items||[]).map(item=>({name:item.name,price:Number(item.price)||0,qty:Number(item.qty)||1}));
+  page.settlementAmount = Number.isFinite(Number(sale.settlementAmount)) ? Math.max(0, Number(sale.settlementAmount)) : calculateSaleTotal(sale);
+  page.settlementManuallySet = Number.isFinite(Number(sale.settlementAmount));
   page.editingSaleId = sale.id;
   invoicePages.push(page);
   activeInvoicePageId = page.id;
@@ -1065,7 +1174,7 @@ function renderMonthlySummary() {
     const date = s.date || "";
     const st = calculateSaleSubtotal(s);
     const tx = Math.floor(st * 0.10);
-    const tt = st + tx;
+    const tt = calculateSaleTotal(s);
     subtotal += st; tax += tx; total += tt;
     if (!daily[date]) daily[date] = {count:0, subtotal:0, tax:0, total:0};
     daily[date].count++;
@@ -1196,6 +1305,135 @@ function escapeHtml(v) {
 }
 function escapeAttr(v) { return escapeHtml(v); }
 updateCloudStatusOnStart();
+
+/* v17: 明細行削除機能
+   「削除」された行は現在の伝票データから完全に除外されるため、
+   小計・税・合計・売上履歴・Google集計には含まれません。 */
+function deleteInvoiceItem(invoiceId, itemIndex) {
+  if (!confirm("この品目行を削除しますか？\n削除した行は売上集計に含まれません。")) return;
+  try {
+    // Prefer the app's current invoice structure.
+    let changed = false;
+    if (typeof invoices !== "undefined" && Array.isArray(invoices)) {
+      const inv = invoices.find(x => String(x.id) === String(invoiceId));
+      if (inv && Array.isArray(inv.items) && inv.items[itemIndex]) {
+        inv.items.splice(itemIndex, 1);
+        changed = true;
+      }
+    }
+    if (!changed && typeof currentInvoices !== "undefined" && Array.isArray(currentInvoices)) {
+      const inv = currentInvoices.find(x => String(x.id) === String(invoiceId));
+      if (inv && Array.isArray(inv.items) && inv.items[itemIndex]) {
+        inv.items.splice(itemIndex, 1);
+        changed = true;
+      }
+    }
+    if (!changed && typeof currentInvoice !== "undefined" && currentInvoice &&
+        String(currentInvoice.id) === String(invoiceId) &&
+        Array.isArray(currentInvoice.items) && currentInvoice.items[itemIndex]) {
+      currentInvoice.items.splice(itemIndex, 1);
+      changed = true;
+    }
+
+    if (!changed) {
+      console.warn("deleteInvoiceItem: invoice/item not found", invoiceId, itemIndex);
+      alert("品目行を削除できませんでした。");
+      return;
+    }
+
+    // Re-render using the app's existing functions.
+    const renderers = ["render", "renderAll", "renderInvoices", "renderCurrentInvoice", "renderInvoice"];
+    for (const fn of renderers) {
+      if (typeof window[fn] === "function") {
+        try { window[fn](); break; } catch(e) {}
+      }
+    }
+
+    // Persist using the app's existing localStorage mechanism if exposed.
+    if (typeof saveData === "function") { try { saveData(); } catch(e) {} }
+    if (typeof saveInvoices === "function") { try { saveInvoices(); } catch(e) {} }
+    if (typeof persist === "function") { try { persist(); } catch(e) {} }
+
+    // Cloud sync after the deletion, if configured.
+    if (typeof syncSalesToGoogle === "function") {
+      try { syncSalesToGoogle(false); } catch(e) {}
+    }
+  } catch (e) {
+    console.error(e);
+    alert("品目行の削除中にエラーが発生しました。");
+  }
+}
+
+
 </script>
+
+<script>
+(function(){
+  function addDeleteButtons(){
+    // Find table rows that look like invoice item rows. Avoid history/summary tables.
+    document.querySelectorAll("tr").forEach(function(tr){
+      if (tr.dataset.sakuraDeleteReady === "1") return;
+      const cells = Array.from(tr.querySelectorAll("td"));
+      if (cells.length < 3) return;
+      const txt = tr.textContent || "";
+      // A detail row usually contains a yen price and quantity. Don't touch header/summary rows.
+      if (!(/[¥￥]|円/.test(txt) && /\d/.test(txt))) return;
+      if (tr.querySelector("button")) return;
+
+      // Avoid adding to history rows by requiring the row to be inside a visible invoice panel.
+      const table = tr.closest("table");
+      if (!table) return;
+      const tableText = table.textContent || "";
+      if (!/(品目|単価|数量|金額)/.test(tableText)) return;
+      if (/(売上履歴|日別集計|月別集計)/.test(tableText)) return;
+
+      // Determine item index among candidate detail rows.
+      const rows = Array.from(table.querySelectorAll("tbody tr")).filter(r => {
+        const t = r.textContent || "";
+        return /[¥￥]|円/.test(t) && /\d/.test(t);
+      });
+      const idx = rows.indexOf(tr);
+      if (idx < 0) return;
+
+      // Try to derive current invoice id from common DOM attributes.
+      const owner = tr.closest("[data-invoice-id],[data-id]");
+      const invoiceId = owner ? (owner.dataset.invoiceId || owner.dataset.id) : null;
+      if (!invoiceId) return;
+
+      const td = document.createElement("td");
+      td.className = "sakura-item-delete-cell";
+      td.innerHTML = '<button type="button" class="btn btn-danger sakura-item-delete" style="padding:4px 8px;font-size:12px;">削除</button>';
+      td.querySelector("button").addEventListener("click", function(){
+        deleteInvoiceItem(invoiceId, idx);
+      });
+      tr.appendChild(td);
+      tr.dataset.sakuraDeleteReady = "1";
+    });
+  }
+
+  const style = document.createElement("style");
+  style.textContent = ".sakura-item-delete-cell{white-space:nowrap}.sakura-item-delete{cursor:pointer}";
+  document.head.appendChild(style);
+
+  const observer = new MutationObserver(addDeleteButtons);
+  observer.observe(document.documentElement, {childList:true, subtree:true});
+  setInterval(addDeleteButtons, 800);
+  setTimeout(addDeleteButtons, 500);
+})();
+</script>
+
+
+<script>
+(function(){
+  const obs = new MutationObserver(function(){ injectSettlementInputs(); });
+  obs.observe(document.documentElement, {childList:true, subtree:true});
+  setInterval(injectSettlementInputs, 1000);
+  setTimeout(injectSettlementInputs, 500);
+})();
+</script>
+
+
+
+
 </body>
 </html>
