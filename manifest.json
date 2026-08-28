@@ -1,0 +1,18 @@
+{
+  "id":"./",
+  "name":"SAKURA店舗伝票",
+  "short_name":"SAKURA店舗伝票",
+  "description":"店舗の伝票・売上履歴・日別集計・月別集計を管理する店舗用アプリ",
+  "start_url":"./index.html",
+  "scope":"./",
+  "display":"standalone",
+  "orientation":"any",
+  "background_color":"#ffffff",
+  "theme_color":"#d83b69",
+  "lang":"ja-JP",
+  "categories":["business","productivity"],
+  "icons":[
+    {"src":"./icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"./icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+  ]
+}
