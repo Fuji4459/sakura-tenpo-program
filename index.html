@@ -72,7 +72,13 @@ th { background:#f8f9fa; white-space:nowrap; }
 .settlement-input{width:180px;max-width:60%;box-sizing:border-box;padding:8px 10px;font-size:20px;font-weight:700;text-align:right;border:2px solid #888;border-radius:6px}
 .settlement-input:focus{border-color:#2563eb;outline:none}
 </style>
-</head>
+<style id="sakura-v21-settlement-css">.settlement-row td:first-child{font-weight:700}.settlement-input{width:180px;max-width:60%;box-sizing:border-box;padding:8px 10px;font-size:20px;font-weight:700;text-align:right;border:2px solid #888;border-radius:6px}.settlement-input:focus{border-color:#2563eb;outline:none}</style><style id="sakura-v22-settlement-css">
+.item-table th,.item-table td{vertical-align:middle}
+.select-item{width:100%;box-sizing:border-box}
+.input-price,.input-qty{box-sizing:border-box}
+.settlement-row td:first-child{font-weight:700}
+.settlement-input{width:180px;max-width:60%;box-sizing:border-box;padding:8px 10px;font-size:20px;font-weight:700;text-align:right;border:2px solid #888;border-radius:6px}
+</style></head>
 <body>
 <div class="container">
   <div class="action-header">
@@ -503,32 +509,27 @@ function initSettlementInput() {
 }
 
 function calculateTotal() {
-  let subtotal = 0;
-  document.querySelectorAll("#item-list tr").forEach(row => {
-    const price = Math.max(0, parseInt(row.querySelector(".input-price")?.value,10)||0);
-    const qty = Math.max(0, parseInt(row.querySelector(".input-qty")?.value,10)||0);
-    const total = price * qty;
-    row.querySelector(".row-total").textContent = total.toLocaleString();
-    subtotal += total;
+  let subtotal=0;
+  document.querySelectorAll("#item-list tr").forEach(row=>{
+    const price=Math.max(0,parseInt(row.querySelector(".input-price")?.value,10)||0);
+    const qty=Math.max(0,parseInt(row.querySelector(".input-qty")?.value,10)||0);
+    const amount=price*qty;
+    const cell=row.querySelector(".row-total");
+    if(cell) cell.textContent=amount.toLocaleString();
+    subtotal+=amount;
   });
-  const tax = Math.floor(subtotal * 0.10);
-  globalTotalAmount = subtotal + tax;
-  document.getElementById("subtotal").textContent = subtotal.toLocaleString();
-  document.getElementById("tax").textContent = tax.toLocaleString();
-  document.getElementById("total-amount").textContent = globalTotalAmount.toLocaleString();
+  const tax=Math.floor(subtotal*0.10);
+  const total=subtotal+tax;
+  globalTotalAmount=total;
+  const sub=document.getElementById("subtotal"); if(sub) sub.textContent=subtotal.toLocaleString();
+  const tx=document.getElementById("tax"); if(tx) tx.textContent=tax.toLocaleString();
+  const tt=document.getElementById("total-amount"); if(tt) tt.textContent=total.toLocaleString();
 
-  const settlementEl = document.getElementById("settlement-amount");
-  const page = getActiveInvoicePage ? getActiveInvoicePage() : null;
-  if (settlementEl) {
-    const manual = settlementEl.dataset.manual === "1" || (page && page.settlementManuallySet);
-    if (!manual) {
-      settlementEl.value = globalTotalAmount;
-      settlementEl.dataset.manual = "0";
-      if (page) {
-        page.settlementAmount = globalTotalAmount;
-        page.settlementManuallySet = false;
-      }
-    }
+  const settlement=document.getElementById("settlement-amount");
+  const page=typeof getActiveInvoicePage==="function"?getActiveInvoicePage():null;
+  if(settlement && settlement.dataset.manual!=="1" && !(page && page.settlementManuallySet)){
+    settlement.value=total;
+    if(page){page.settlementAmount=total;page.settlementManuallySet=false;}
   }
 }
 
