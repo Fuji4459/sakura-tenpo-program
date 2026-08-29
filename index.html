@@ -78,7 +78,11 @@ th { background:#f8f9fa; white-space:nowrap; }
 .input-price,.input-qty{box-sizing:border-box}
 .settlement-row td:first-child{font-weight:700}
 .settlement-input{width:180px;max-width:60%;box-sizing:border-box;padding:8px 10px;font-size:20px;font-weight:700;text-align:right;border:2px solid #888;border-radius:6px}
-</style></head>
+</style><link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#c2185b">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
+</head>
 <body>
 <div class="container">
   <div class="action-header">
@@ -1436,5 +1440,11 @@ function deleteInvoiceItem(invoiceId, itemIndex) {
 
 
 
-</body>
+<script>
+if ("serviceWorker" in navigator) {
+ window.addEventListener("load",function(){
+  navigator.serviceWorker.register("./sw.js?v=23",{scope:"./"}).catch(function(e){console.warn(e);});
+ });
+}
+</script></body>
 </html>

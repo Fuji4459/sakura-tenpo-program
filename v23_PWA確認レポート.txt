@@ -1,0 +1,1 @@
+v22をベースに、正式PWA用manifest、standalone表示、192/512px桜アイコン、Service Worker v23を追加。
