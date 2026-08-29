@@ -28,12 +28,40 @@ function getSpreadsheet_() {
 }
 
 function doGet(e) {
-  return json_({
+  const p = e && e.parameter ? e.parameter : {};
+  const callback = String(p.callback || "");
+
+  let result = {
     ok: true,
     app: "SAKURA店舗伝票",
     message: "Google保存サーバーは稼働しています。",
     time: new Date().toISOString()
-  });
+  };
+
+  // 接続テスト：店舗キーを確認
+  if (p.action === "ping") {
+    if (String(p.apiKey || "") !== String(CONFIG.API_KEY)) {
+      result = {ok:false, error:"店舗キーが正しくありません"};
+    } else {
+      result = {
+        ok:true,
+        app:"SAKURA店舗伝票",
+        message:"Google接続テスト成功",
+        time:new Date().toISOString()
+      };
+    }
+  }
+
+  const text = JSON.stringify(result);
+
+  // ブラウザから実際の応答を読み取れるようJSONPにも対応
+  if (/^[A-Za-z_$][0-9A-Za-z_$]*$/.test(callback)) {
+    return ContentService
+      .createTextOutput(callback + "(" + text + ");")
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+
+  return json_(result);
 }
 
 function doPost(e) {

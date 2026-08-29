@@ -82,6 +82,15 @@ th { background:#f8f9fa; white-space:nowrap; }
 <meta name="theme-color" content="#c2185b">
 <link rel="icon" href="icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="icon-192.png">
+
+<script>
+/* SAKURA店舗伝票 v23 Google連携初期設定 */
+window.SAKURA_GOOGLE_DEFAULTS = {
+  url: "https://script.google.com/macros/s/AKfycbxPOGcv0z5nRaWtGlej6lOOqQtlisa8e2MDegzibLxGPI7mSz6GRiZ4mlsCtzg8zAB5/exec",
+  apiKey: "SAKURA001"
+};
+</script>
+
 </head>
 <body>
 <div class="container">
@@ -151,7 +160,7 @@ th { background:#f8f9fa; white-space:nowrap; }
       <input id="cloud-webapp-url" type="url" placeholder="https://script.google.com/macros/s/……/exec">
     </label>
     <label style="display:block;margin-bottom:12px;font-weight:bold;">
-      店舗キー
+      店舗キー（Apps Script側のAPI_KEYと同じ文字列）
       <input id="cloud-api-key" type="password" placeholder="Apps Script側で設定した店舗キー">
     </label>
     <div style="font-size:12px;color:#666;line-height:1.6;">
@@ -694,15 +703,62 @@ function syncSalesToGoogle(showAlert=false) {
 
 function testCloudConnection() {
   const s = getCloudSettings();
+
   if (!s.url || !s.apiKey) {
     alert("先にGoogle保存設定を入力してください。");
     return;
   }
-  const iframe = ensureCloudIframe();
-  iframe.onload = function() {
-    setCloudStatus("☁️ 接続テスト送信済み", true);
+
+  setCloudStatus("☁️ Google接続を確認中…");
+
+  const callbackName = "__sakuraCloudTest_" + Date.now();
+  const script = document.createElement("script");
+  let finished = false;
+
+  window[callbackName] = function(result) {
+    finished = true;
+    cleanup();
+
+    if (result && result.ok) {
+      setCloudStatus("☁️ Google接続テスト成功", true);
+      alert("Google接続テストに成功しました。");
+    } else {
+      const msg = result && result.error ? result.error : "Google側からエラーが返されました。";
+      setCloudStatus("☁️ 接続エラー", false, true);
+      alert("Google接続テストに失敗しました。\n" + msg);
+    }
   };
-  syncSalesToGoogle(true);
+
+  function cleanup() {
+    try { delete window[callbackName]; } catch(e) { window[callbackName] = undefined; }
+    if (script.parentNode) script.parentNode.removeChild(script);
+  }
+
+  script.onerror = function() {
+    if (finished) return;
+    finished = true;
+    cleanup();
+    setCloudStatus("☁️ 接続エラー", false, true);
+    alert("Google接続テストに失敗しました。\nApps ScriptのURL・公開設定・店舗キーを確認してください。");
+  };
+
+  const sep = s.url.indexOf("?") >= 0 ? "&" : "?";
+  script.src = s.url + sep
+    + "action=ping"
+    + "&apiKey=" + encodeURIComponent(s.apiKey)
+    + "&callback=" + encodeURIComponent(callbackName)
+    + "&_=" + Date.now();
+
+  document.head.appendChild(script);
+
+  // 15秒でタイムアウト
+  setTimeout(function() {
+    if (finished) return;
+    finished = true;
+    cleanup();
+    setCloudStatus("☁️ 接続タイムアウト", false, true);
+    alert("Google接続テストがタイムアウトしました。\nApps Scriptのデプロイ設定とURLを確認してください。");
+  }, 15000);
 }
 
 function updateCloudStatusOnStart() {
@@ -1443,8 +1499,37 @@ function deleteInvoiceItem(invoiceId, itemIndex) {
 <script>
 if ("serviceWorker" in navigator) {
  window.addEventListener("load",function(){
-  navigator.serviceWorker.register("./sw.js?v=23",{scope:"./"}).catch(function(e){console.warn(e);});
+  navigator.serviceWorker.register("./sw.js?v=23-final",{scope:"./"}).catch(function(e){console.warn(e);});
  });
 }
-</script></body>
+</script>
+<script>
+(function() {
+  const D = window.SAKURA_GOOGLE_DEFAULTS;
+  function applyGoogleDefaults() {
+    try {
+      const urlEl = document.getElementById("cloud-url") || document.getElementById("cloud-endpoint");
+      const keyEl = document.getElementById("cloud-api-key");
+      if (urlEl && !urlEl.value) urlEl.value = D.url;
+      if (keyEl && !keyEl.value) keyEl.value = D.apiKey;
+      if (urlEl && keyEl) {
+        // Persist to the app's existing local settings when possible.
+        const raw = localStorage.getItem("sakuraCloudSettings");
+        let s = raw ? JSON.parse(raw) : {};
+        s.url = urlEl.value || D.url;
+        s.apiKey = keyEl.value || D.apiKey;
+        localStorage.setItem("sakuraCloudSettings", JSON.stringify(s));
+      }
+    } catch(e) { console.warn("Google defaults:", e); }
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", applyGoogleDefaults);
+  } else {
+    applyGoogleDefaults();
+  }
+  setTimeout(applyGoogleDefaults, 500);
+})();
+</script>
+
+</body>
 </html>
